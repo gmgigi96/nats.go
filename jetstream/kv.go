@@ -355,6 +355,8 @@ type (
 		metaOnly bool
 		// resumeFromRevision is the revision to resume from.
 		resumeFromRevision uint64
+		// queue group name
+		queueGroup *string
 	}
 
 	// KVDeleteOpt is used to configure delete and purge operations.
@@ -1161,7 +1163,13 @@ func (kv *kvs) Watch(ctx context.Context, keys string, opts ...WatchOpt) (KeyWat
 	// update() callback.
 	w.mu.Lock()
 	defer w.mu.Unlock()
-	sub, err := kv.pushJS.Subscribe(keys, update, subOpts...)
+	var sub *nats.Subscription
+	var err error
+	if o.queueGroup != nil {
+		sub, err = kv.pushJS.QueueSubscribe(keys, *o.queueGroup, update, subOpts...)
+	} else {
+		sub, err = kv.pushJS.Subscribe(keys, update, subOpts...)
+	}
 	if err != nil {
 		return nil, err
 	}

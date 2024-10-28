@@ -74,6 +74,13 @@ func ResumeFromRevision(revision uint64) WatchOpt {
 	})
 }
 
+func QueueGroupName(name string) WatchOpt {
+	return watchOptFn(func(opts *watchOpts) error {
+		opts.queueGroup = &name
+		return nil
+	})
+}
+
 // DeleteMarkersOlderThan indicates that delete or purge markers older than that
 // will be deleted as part of [KeyValue.PurgeDeletes] operation, otherwise, only the data
 // will be removed but markers that are recent will be kept.
